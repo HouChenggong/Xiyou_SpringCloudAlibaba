@@ -1,5 +1,6 @@
 package com.funtl.hello.spring.cloud.alibaba.nacos.provider;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,6 +27,9 @@ public class NacosProviderApplication {
     public class EchoController {
         @GetMapping(value = "/echo/{message}")
         public String echo(@PathVariable String message) {
+            if (RandomUtils.nextInt()%2==0) {
+                throw new RuntimeException();
+            }
             return "Hello Nacos Discovery " + message + " i am from port " + port;
         }
     }

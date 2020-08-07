@@ -1,4 +1,4 @@
-## 基本框架
+## 1. 基本框架
 
 ### 统一依赖、提供者、消费者（2种）
 
@@ -13,7 +13,7 @@
 - hello-spring-cloud-alibaba-nacos-consumer
   普通restTemplate消费者
 
-## 测试负载均衡
+## 2. 测试负载均衡
 启动多个提供者服务，然后把端口号打印出来，然后消费者访问同一个接口，即可测试
 
 而且不管消费者是哪个服务，都会自动负载均衡
@@ -40,7 +40,7 @@ public class NacosProviderApplication {
 }
 ```
 
-## sentinel 消费者熔断阻止雪崩
+## 3. sentinel 消费者熔断阻止雪崩
 
 - 消费者添加sentinel依赖
 
@@ -83,7 +83,16 @@ public interface EchoService {
 }
 ```
 
-- 测试熔断，只需要把服务提供者停掉即可
+- 测试熔断，只需要把服务提供者停掉即可,或者给服务提供者抛出一个异常,下面是一个随机抛出异常的测试
+```java
+ @GetMapping(value = "/echo/{message}")
+        public String echo(@PathVariable String message) {
+            if (RandomUtils.nextInt()%2==0) {
+                throw new RuntimeException();
+            }
+            return "Hello Nacos Discovery " + message + " i am from port " + port;
+        }
+```
 
 然后发现再次请求，就会返回熔断EchoServiceFallback接口中的内容
 
@@ -122,7 +131,7 @@ spring:
         dashboard: localhost:8080
 ```
 
-## springcloudGateway网关
+## 4. springcloudGateway网关
 
 网关里面的配置
 
@@ -202,3 +211,80 @@ Hello Nacos Discovery Hi Feign i am from port 8082
 **注意：请求方式是 http://路由网关IP:路由网关Port/服务名/\****
 
 至此说明 Spring Cloud Gateway 的路由功能配置成功
+
+### 使用网关全局过滤功能
+
+- 过滤器
+
+```java
+package com.funtl.hello.spring.cloud.gateway.filter;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+import java.util.Map;
+
+/**
+ * 鉴权过滤器
+ */
+@Component
+public class AuthFilter implements GlobalFilter, Ordered {
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        String token = exchange.getRequest().getQueryParams().getFirst("token");
+
+        if (token == null || token.isEmpty()) {
+            ServerHttpResponse response = exchange.getResponse();
+
+            // 封装错误信息
+            Map<String, Object> responseData = Maps.newHashMap();
+            responseData.put("code", 401);
+            responseData.put("message", "非法请求");
+            responseData.put("cause", "Token is empty");
+
+            try {
+                // 将信息转换为 JSON
+                ObjectMapper objectMapper = new ObjectMapper();
+                byte[] data = objectMapper.writeValueAsBytes(responseData);
+
+                // 输出错误信息到页面
+                DataBuffer buffer = response.bufferFactory().wrap(data);
+                response.setStatusCode(HttpStatus.UNAUTHORIZED);
+                response.getHeaders().add("Content-Type", "application/json;charset=UTF-8");
+                return response.writeWith(Mono.just(buffer));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return chain.filter(exchange);
+    }
+
+    /**
+     * 设置过滤器的执行顺序
+     *
+     * @return
+     */
+    @Override
+    public int getOrder() {
+        return Ordered.LOWEST_PRECEDENCE;
+    }
+}
+
+
+```
+
+- 测试
+
+http://localhost:9000/nacos-consumer/echo/app/name 网页显示非法请求
+
