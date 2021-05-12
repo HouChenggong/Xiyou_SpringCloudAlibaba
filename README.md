@@ -54,7 +54,7 @@ public class NacosProviderApplication {
 - 消费者实现熔断接口
 
 ```java
-import com.funtl.hello.spring.cloud.alibaba.nacos.consumer.feign.service.EchoService;
+import com.xiyou.hello.spring.cloud.alibaba.nacos.consumer.feign.service.EchoService;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -70,7 +70,7 @@ public class EchoServiceFallback implements EchoService {
 
 ```java
 
-import com.funtl.hello.spring.cloud.alibaba.nacos.consumer.feign.service.fallback.EchoServiceFallback;
+import com.xiyou.hello.spring.cloud.alibaba.nacos.consumer.feign.service.fallback.EchoServiceFallback;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -217,7 +217,7 @@ Hello Nacos Discovery Hi Feign i am from port 8082
 - 过滤器
 
 ```java
-package com.funtl.hello.spring.cloud.gateway.filter;
+package com.xiyou.hello.spring.cloud.gateway.filter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

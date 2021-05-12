@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.funtl</groupId>
+        <groupId>com.xiyou</groupId>
         <artifactId>hello-spring-cloud-alibaba-dependencies</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../hello-spring-cloud-alibaba-dependencies/pom.xml</relativePath>
@@ -14,8 +14,6 @@
     <packaging>jar</packaging>
 
     <name>hello-spring-cloud-alibaba-nacos-consumer-feign</name>
-    <url>http://www.funtl.com</url>
-    <inceptionYear>2018-Now</inceptionYear>
 
     <dependencies>
         <!-- Spring Boot Begin -->
@@ -57,7 +55,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.funtl.hello.spring.cloud.alibaba.nacos.consumer.feign.NacosConsumerFeignApplication
+                    <mainClass>com.xiyou.hello.spring.cloud.alibaba.nacos.consumer.feign.NacosConsumerFeignApplication
                     </mainClass>
                 </configuration>
             </plugin>
